@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "770408977433",
+    "project_id": "shoevaultproject",
+    "storage_bucket": "shoevaultproject.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:770408977433:android:701216ffb0db7dc1f9c688",
+        "android_client_info": {
+          "package_name": "com.example.shoe_vault_project"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDF_EFyA2Ie7shZhWeurnFVsaGKuBVfF78"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
