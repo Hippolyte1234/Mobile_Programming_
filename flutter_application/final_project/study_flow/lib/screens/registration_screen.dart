@@ -1,23 +1,23 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
-class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
+class RegisterScreen extends StatefulWidget {
+  const RegisterScreen({super.key});
 
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  State<RegisterScreen> createState() => _RegisterScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class _RegisterScreenState extends State<RegisterScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
 
   bool _isLoading = false;
   String _errorCode = "";
 
-  void navigateRegister() {
+  void navigateLogin() {
     if (!context.mounted) return;
-    Navigator.pushReplacementNamed(context, 'register');
+    Navigator.pushReplacementNamed(context, 'login');
   }
 
   void navigateHome() {
@@ -25,18 +25,18 @@ class _LoginScreenState extends State<LoginScreen> {
     Navigator.pushReplacementNamed(context, 'home');
   }
 
-  void signIn() async {
+  void register() async {
     setState(() {
       _isLoading = true;
       _errorCode = "";
     });
 
     try {
-      await FirebaseAuth.instance.signInWithEmailAndPassword(
+      await FirebaseAuth.instance.createUserWithEmailAndPassword(
         email: _emailController.text,
         password: _passwordController.text,
       );
-      navigateHome();
+      navigateLogin();
     } on FirebaseAuthException catch (e) {
       setState(() {
         _errorCode = e.code;
@@ -52,7 +52,7 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Login'),
+        title: const Text('Register'),
         centerTitle: true,
       ),
       body: Padding(
@@ -75,21 +75,22 @@ class _LoginScreenState extends State<LoginScreen> {
               const SizedBox(height: 24),
               _errorCode != ""
                   ? Column(
-                      children: [Text(_errorCode), const SizedBox(height: 24)])
+                      children: [Text(_errorCode), const SizedBox(height: 24)],
+                    )
                   : const SizedBox(height: 0),
               OutlinedButton(
-                onPressed: signIn,
+                onPressed: register,
                 child: _isLoading
                     ? const CircularProgressIndicator()
-                    : const Text('Login'),
+                    : const Text('Register'),
               ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Text('Don\'t have an account?'),
+                  const Text('Already have an account?'),
                   TextButton(
-                    onPressed: navigateRegister,
-                    child: const Text('Register'),
+                    onPressed: navigateLogin,
+                    child: const Text('Login'),
                   )
                 ],
               )
