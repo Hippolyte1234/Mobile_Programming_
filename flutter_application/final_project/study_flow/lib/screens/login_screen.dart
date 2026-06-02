@@ -17,12 +17,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   void navigateRegister() {
     if (!context.mounted) return;
-    Navigator.pushReplacementNamed(context, 'register');
-  }
-
-  void navigateHome() {
-    if (!context.mounted) return;
-    Navigator.pushReplacementNamed(context, 'home');
+    Navigator.pushNamed(context, 'register');
   }
 
   void signIn() async {
@@ -36,16 +31,22 @@ class _LoginScreenState extends State<LoginScreen> {
         email: _emailController.text,
         password: _passwordController.text,
       );
-      navigateHome();
+      // On success the AuthGate's authStateChanges stream fires and
+      // automatically swaps this screen for the HomeScreen — no manual
+      // navigation needed here.
     } on FirebaseAuthException catch (e) {
-      setState(() {
-        _errorCode = e.code;
-      });
+      if (mounted) {
+        setState(() {
+          _errorCode = e.code;
+        });
+      }
     }
 
-    setState(() {
-      _isLoading = false;
-    });
+    if (mounted) {
+      setState(() {
+        _isLoading = false;
+      });
+    }
   }
 
   @override

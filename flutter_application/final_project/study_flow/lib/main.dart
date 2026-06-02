@@ -1,8 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:study_flow/firebase_options.dart';
-import 'package:study_flow/screens/homepage_screen.dart';
-import 'package:study_flow/screens/login_screen.dart';
+import 'package:study_flow/screens/auth_gate.dart';
 import 'package:study_flow/screens/registration_screen.dart';
 
 void main() async {
@@ -22,10 +21,8 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      initialRoute: 'login',
+      home: const AuthGate(),
       routes: {
-        'home': (context) => const HomeScreen(),
-        'login': (context) => const LoginScreen(),
         'register': (context) => const RegisterScreen(),
       },
     );

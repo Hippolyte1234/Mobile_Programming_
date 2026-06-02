@@ -17,12 +17,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   void navigateLogin() {
     if (!context.mounted) return;
-    Navigator.pushReplacementNamed(context, 'login');
-  }
-
-  void navigateHome() {
-    if (!context.mounted) return;
-    Navigator.pushReplacementNamed(context, 'home');
+    Navigator.pop(context);
   }
 
   void register() async {
@@ -36,16 +31,22 @@ class _RegisterScreenState extends State<RegisterScreen> {
         email: _emailController.text,
         password: _passwordController.text,
       );
+      // Creating an account signs the user in, so popping this screen
+      // reveals the AuthGate, which now shows the HomeScreen.
       navigateLogin();
     } on FirebaseAuthException catch (e) {
-      setState(() {
-        _errorCode = e.code;
-      });
+      if (mounted) {
+        setState(() {
+          _errorCode = e.code;
+        });
+      }
     }
 
-    setState(() {
-      _isLoading = false;
-    });
+    if (mounted) {
+      setState(() {
+        _isLoading = false;
+      });
+    }
   }
 
   @override
