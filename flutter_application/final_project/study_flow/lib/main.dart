@@ -2,8 +2,14 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:study_flow/firebase_options.dart';
 import 'package:study_flow/screens/firestore_test_screen.dart';
+import 'package:study_flow/screens/homepage_screen.dart';
+import 'package:study_flow/screens/history_screen.dart';
+import 'package:study_flow/screens/logger_screen.dart';
+import 'package:study_flow/screens/login_screen.dart';
+import 'package:study_flow/screens/logout_screen.dart';
+import 'package:study_flow/screens/settings_screen.dart';
 
-void main() async {
+/*void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   runApp(const MyApp());
@@ -50,6 +56,7 @@ class _MainShellState extends State<MainShell> {
         destinations: const [
           NavigationDestination(icon: Icon(Icons.home_outlined), label: 'Home'),
           NavigationDestination(icon: Icon(Icons.storage_outlined), label: 'Firestore'),
+
         ],
       ),
     );
@@ -65,4 +72,42 @@ class _HomePage extends StatelessWidget {
       body: Center(child: Text('Home')),
     );
   }
+}*/
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  /*
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+  final dir = await getApplicationDocumentsDirectory();
+  
+
+  final isar = await Isar.open(
+    [ShoeSchema, BrandSchema],
+    directory: dir.path,
+  );
+
+  final dbService = DatabaseService(isar);*/
+
+  try {
+    await Firebase.initializeApp();
+    print("Firebase succesfully connected");
+  } catch (e) {
+    print("Firebase initialization failed: $e");
+  }
+
+
+  runApp(MaterialApp(
+    debugShowCheckedModeBanner: false,
+    initialRoute: 'home',
+    routes: {
+      'home': (context) => HomepageScreen(),
+      'history': (context) => HistoryScreen(),
+      'firestore': (context) => FirestoreTestScreen(),
+      'settings': (context) => SettingsScreen(),
+      'logger': (context) => LoggerScreen(),
+    },
+  ));
 }
