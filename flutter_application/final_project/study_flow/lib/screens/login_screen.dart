@@ -31,9 +31,10 @@ class _LoginScreenState extends State<LoginScreen> {
         email: _emailController.text,
         password: _passwordController.text,
       );
-      // On success the AuthGate's authStateChanges stream fires and
-      // automatically swaps this screen for the HomeScreen — no manual
-      // navigation needed here.
+    if (mounted) {
+        Navigator.pushReplacementNamed(context, 'home'); 
+      }
+      
     } on FirebaseAuthException catch (e) {
       if (mounted) {
         setState(() {

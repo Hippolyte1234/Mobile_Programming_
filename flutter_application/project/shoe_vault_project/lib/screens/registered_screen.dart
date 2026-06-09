@@ -8,7 +8,6 @@ class RegisteredScreen extends StatelessWidget {
   final DatabaseService dbService;
 
   @override
-  // SUPPRESSION de async et Future
   Widget build(BuildContext context) { 
     return Scaffold(
       appBar: AppBar(
@@ -22,7 +21,6 @@ class RegisteredScreen extends StatelessWidget {
             const Text('Registration successful! Please log in.'),
             const SizedBox(height: 20),
             ElevatedButton(
-              // Utilisation d'une fonction anonyme () => ...
               onPressed: () {
                 Navigator.pushReplacement(
                   context,
