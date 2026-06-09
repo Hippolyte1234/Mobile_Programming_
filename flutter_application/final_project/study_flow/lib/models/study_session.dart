@@ -8,11 +8,14 @@ class StudySession {
   DateTime? endTime;
   String? date;
 
+  String? firestoreId;
+
   String? subject;
   String? duration;
   String? notes;
 
   StudySession({
+    this.firestoreId,
     this.subject,
     this.duration,
     this.notes,
@@ -32,16 +35,17 @@ class StudySession {
     };
   }
 
-  factory StudySession.fromMap(Map<String, dynamic> map) {
+  factory StudySession.fromMap(Map<String, dynamic> map, [String? id]) {
     return StudySession(
+      firestoreId: id,
       subject: map['subject'],
       duration: map['duration'],
       notes: map['notes'],
       date: map['date'],
-      startTime: map['startTime'] != null ? DateTime.parse(map['startTime']) : null,
+      startTime: map['startTime'] != null
+          ? DateTime.parse(map['startTime'])
+          : null,
       endTime: map['endTime'] != null ? DateTime.parse(map['endTime']) : null,
     );
   }
 }
-  
-
