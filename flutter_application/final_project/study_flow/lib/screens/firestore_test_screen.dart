@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:study_flow/services/notification_service.dart';
 
 class FirestoreTestScreen extends StatelessWidget {
   const FirestoreTestScreen({super.key});
@@ -45,7 +46,11 @@ class FirestoreTestScreen extends StatelessWidget {
                 onDismissed: (_) => _col.doc(doc.id).delete(),
                 child: ListTile(
                   title: Text(title),
-                  trailing: const Icon(Icons.chevron_right),
+                  trailing: IconButton(
+                    icon: const Icon(Icons.delete_outline, color: Colors.red),
+                    tooltip: 'Delete',
+                    onPressed: () => _confirmDelete(context, doc.id, title),
+                  ),
                   onTap: () => _showItemDialog(context, docId: doc.id, existing: title),
                 ),
               );
@@ -56,6 +61,32 @@ class FirestoreTestScreen extends StatelessWidget {
       floatingActionButton: FloatingActionButton(
         onPressed: () => _showItemDialog(context),
         child: const Icon(Icons.add),
+      ),
+    );
+  }
+
+  void _confirmDelete(BuildContext context, String docId, String title) {
+    showDialog<void>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Delete Item'),
+        content: Text('Are you sure you want to delete "$title"?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            style: FilledButton.styleFrom(backgroundColor: Colors.red),
+            onPressed: () async {
+              await _col.doc(docId).delete();
+              if (dialogContext.mounted) Navigator.pop(dialogContext);
+              await NotificationService.instance
+                  .show('Item deleted', '"$title" was removed from your AI Plan.');
+            },
+            child: const Text('Delete'),
+          ),
+        ],
       ),
     );
   }
@@ -96,16 +127,20 @@ class FirestoreTestScreen extends StatelessWidget {
     BuildContext context,
     TextEditingController controller,
     String? docId,
-  ) {
+  ) async {
     final title = controller.text.trim();
     if (title.isEmpty) return;
 
     if (docId != null) {
-      _col.doc(docId).update({'title': title});
+      await _col.doc(docId).update({'title': title});
+      await NotificationService.instance
+          .show('Item updated', '"$title" was updated in your AI Plan.');
     } else {
-      _col.add({'title': title, 'createdAt': FieldValue.serverTimestamp()});
+      await _col.add({'title': title, 'createdAt': FieldValue.serverTimestamp()});
+      await NotificationService.instance
+          .show('Item added', '"$title" was added to your AI Plan.');
     }
 
-    Navigator.pop(context);
+    if (context.mounted) Navigator.pop(context);
   }
 }

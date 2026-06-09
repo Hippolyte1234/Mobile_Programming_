@@ -10,6 +10,7 @@ import 'package:study_flow/screens/logout_screen.dart';
 import 'package:study_flow/screens/settings_screen.dart';
 import 'package:study_flow/screens/auth_gate.dart';
 import 'package:study_flow/screens/registration_screen.dart';
+import 'package:study_flow/services/notification_service.dart';
 
 /*void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -102,6 +103,8 @@ void main() async {
   } catch (e) {
     print("Firebase initialization failed: $e");
   }
+
+  await NotificationService.instance.init();
 
 
   runApp(MaterialApp(
