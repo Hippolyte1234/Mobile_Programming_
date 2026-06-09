@@ -8,6 +8,8 @@ import 'package:study_flow/screens/logger_screen.dart';
 import 'package:study_flow/screens/login_screen.dart';
 import 'package:study_flow/screens/logout_screen.dart';
 import 'package:study_flow/screens/settings_screen.dart';
+import 'package:study_flow/screens/auth_gate.dart';
+import 'package:study_flow/screens/registration_screen.dart';
 
 /*void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -26,6 +28,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
+<<<<<<< HEAD
       home: const MainShell(),
     );
   }
@@ -70,6 +73,8 @@ class _HomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return const Scaffold(
       body: Center(child: Text('Home')),
+=======
+
     );
   }
 }*/
@@ -101,13 +106,15 @@ void main() async {
 
   runApp(MaterialApp(
     debugShowCheckedModeBanner: false,
-    initialRoute: 'home',
+    initialRoute: 'login',
     routes: {
       'home': (context) => HomepageScreen(),
       'history': (context) => HistoryScreen(),
       'firestore': (context) => FirestoreTestScreen(),
       'settings': (context) => SettingsScreen(),
       'logger': (context) => LoggerScreen(),
+      'register': (context) => RegisterScreen(),
+      'login': (context) => LoginScreen(),
     },
   ));
 }

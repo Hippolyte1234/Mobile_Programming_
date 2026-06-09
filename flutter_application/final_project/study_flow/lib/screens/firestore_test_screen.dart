@@ -10,7 +10,6 @@ class FirestoreTestScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Firestore Test')),
       body: StreamBuilder<QuerySnapshot>(
         stream: _col.orderBy('createdAt', descending: true).snapshots(),
         builder: (context, snapshot) {
