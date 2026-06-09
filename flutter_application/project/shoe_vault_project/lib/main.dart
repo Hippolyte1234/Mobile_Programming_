@@ -10,6 +10,7 @@ import 'package:shoe_vault_project/services/database_service.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:shoe_vault_project/services/notification_service.dart';
 import 'firebase_options.dart';
+import 'package:shoe_vault_project/screens/registered_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -40,6 +41,7 @@ void main() async {
       'register': (context) => RegisterScreen(),
       '/': (context) => LoginScreen(dbService: dbService),
       'settings': (context) => SettingsScreen(),
+      'registered': (context) => RegisteredScreen(dbService: dbService),
     },
   ));
 }
