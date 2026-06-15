@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:study_flow/services/location_service.dart';
 import 'package:study_flow/services/notification_service.dart';
 
 class FirestoreTestScreen extends StatelessWidget {
@@ -32,7 +33,10 @@ class FirestoreTestScreen extends StatelessWidget {
             separatorBuilder: (context, i) => const Divider(height: 1),
             itemBuilder: (context, i) {
               final doc = docs[i];
-              final title = doc['title'] as String;
+              final data = doc.data() as Map<String, dynamic>;
+              final title = data['title'] as String? ?? '';
+              final location =
+                  data['location'] as String? ?? LocationService.unknown;
 
               return Dismissible(
                 key: Key(doc.id),
@@ -46,6 +50,21 @@ class FirestoreTestScreen extends StatelessWidget {
                 onDismissed: (_) => _col.doc(doc.id).delete(),
                 child: ListTile(
                   title: Text(title),
+                  subtitle: Row(
+                    children: [
+                      const Icon(Icons.location_on_outlined,
+                          size: 14, color: Colors.grey),
+                      const SizedBox(width: 4),
+                      Expanded(
+                        child: Text(
+                          location,
+                          style: const TextStyle(
+                              fontSize: 12, color: Colors.grey),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  ),
                   trailing: IconButton(
                     icon: const Icon(Icons.delete_outline, color: Colors.red),
                     tooltip: 'Delete',
@@ -136,9 +155,14 @@ class FirestoreTestScreen extends StatelessWidget {
       await NotificationService.instance
           .show('Item updated', '"$title" was updated in your AI Plan.');
     } else {
-      await _col.add({'title': title, 'createdAt': FieldValue.serverTimestamp()});
+      final location = await LocationService.instance.getCurrentLocationName();
+      await _col.add({
+        'title': title,
+        'location': location,
+        'createdAt': FieldValue.serverTimestamp(),
+      });
       await NotificationService.instance
-          .show('Item added', '"$title" was added to your AI Plan.');
+          .show('Item added', '"$title" was added at $location.');
     }
 
     if (context.mounted) Navigator.pop(context);

@@ -99,13 +99,12 @@ void main() async {
 
   try {
     await Firebase.initializeApp();
-    print("Firebase succesfully connected");
+    print("Firebase successfully connected");
   } catch (e) {
     print("Firebase initialization failed: $e");
   }
 
   await NotificationService.instance.init();
-
 
   runApp(MaterialApp(
     debugShowCheckedModeBanner: false,
