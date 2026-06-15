@@ -39,8 +39,6 @@ dependencies:
   cloud_firestore: ^6.4.1
   firebase_auth: ^6.5.2
   awesome_notifications: ^0.11.0
-
-  awesome_notifications: ^0.11.0
   
   flutter_local_notifications: ^22.0.0
   geolocator: ^14.0.2

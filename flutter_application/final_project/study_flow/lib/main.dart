@@ -11,7 +11,7 @@ import 'package:study_flow/screens/settings_screen.dart';
 import 'package:study_flow/screens/auth_gate.dart';
 import 'package:study_flow/screens/registration_screen.dart';
 import 'package:study_flow/services/notification_service.dart';
-import 'package:study_flow/services/notifications_service.dart';
+import 'package:study_flow/services/notifications_service.dart' as awesome_notifications;
 /*void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
@@ -103,8 +103,7 @@ void main() async {
   } catch (e) {
     print("Firebase initialization failed: $e");
   }
-  await NotificationService.init();
-  await NotificationService.init();
+  await awesome_notifications.NotificationService.init();
 
   await NotificationService.instance.init();
 
