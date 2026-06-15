@@ -104,6 +104,7 @@ void main() async {
     print("Firebase initialization failed: $e");
   }
   await NotificationService.init();
+  await NotificationService.init();
 
   await NotificationService.instance.init();
 
