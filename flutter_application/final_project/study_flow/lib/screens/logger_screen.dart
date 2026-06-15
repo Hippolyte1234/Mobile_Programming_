@@ -103,6 +103,7 @@ import 'package:flutter/material.dart';
 import 'package:study_flow/models/study_session.dart';
 import 'package:study_flow/services/database_service.dart';
 import 'package:study_flow/services/study_session_service.dart';
+import 'package:study_flow/services/notifications_service.dart';
 
 class LoggerScreen extends StatefulWidget {
   const LoggerScreen({super.key});
@@ -154,13 +155,14 @@ class LoggerScreenState extends State<LoggerScreen> {
 
     await _studySessionService.saveStudySession(newSession);
     await _databaseService.saveStudySession(newSession);
+
+    await NotificationService.showStudySessionAddedNotification();
     
     if (mounted) {
       Navigator.pop(context);
     }
   }
 
-  // Helper pour afficher le calendrier natif
   Future<void> _pickDate() async {
     DateTime? picked = await showDatePicker(
       context: context,
@@ -173,7 +175,6 @@ class LoggerScreenState extends State<LoggerScreen> {
     }
   }
 
-  // Helper pour afficher l'horloge native
   Future<void> _pickTime() async {
     TimeOfDay? picked = await showTimePicker(
       context: context,
@@ -192,11 +193,10 @@ class LoggerScreenState extends State<LoggerScreen> {
         actions: [
           IconButton(
             icon: const Icon(Icons.save),
-            onPressed: _saveSession, // Appel de la méthode corrigée
+            onPressed: _saveSession, 
           ),
         ],
       ),
-      // Remplacement du Container par un ListView pour permettre le scroll avec le clavier
       body: ListView(
         padding: const EdgeInsets.all(16.0),
         children: [
@@ -218,8 +218,7 @@ class LoggerScreenState extends State<LoggerScreen> {
           ),
           const SizedBox(height: 16.0),
           
-          // Sélecteur de Date Stylisé (évite les erreurs de frappe)
-          ListTile(
+          ListTile( //date selector
             title: Text(_selectedDate == null 
                 ? 'Select Date' 
                 : 'Date: ${_selectedDate!.year}-${_selectedDate!.month}-${_selectedDate!.day}'),
@@ -230,8 +229,7 @@ class LoggerScreenState extends State<LoggerScreen> {
           ),
           const SizedBox(height: 16.0),
 
-          // Sélecteur d'Heure Stylisé
-          ListTile(
+          ListTile(//Hour selector
             title: Text(_selectedTime == null 
                 ? 'Select Start Time' 
                 : 'Start Time: ${_selectedTime!.format(context)}'),
@@ -248,7 +246,7 @@ class LoggerScreenState extends State<LoggerScreen> {
               labelText: 'Notes',
               border: OutlineInputBorder(),
             ),
-            maxLines: 5, // Réduit à 5 pour laisser de la place visuelle, mais extensible
+            maxLines: 5, 
           ),
         ],
       ),

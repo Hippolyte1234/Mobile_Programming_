@@ -7,21 +7,47 @@ class DatabaseService {
 
   Future<void> saveStudySession(StudySession session) async {
     try {
-      
       await _db.collection('study_sessions').add(session.toMap());
       print("Session saved");
     } catch (e) {
       print("Error to save session : $e");
-      rethrow; 
+      rethrow;
+    }
+  }
+
+  Future<void> updateStudySession(StudySession session) async {
+    try {
+      if (session.firestoreId != null) {
+        await _db
+            .collection('study_sessions')
+            .doc(session.firestoreId)
+            .update(session.toMap());
+        print("Session updated");
+      }
+    } catch (e) {
+      print("Error updating session: $e");
+      rethrow;
+    }
+  }
+
+  Future<void> deleteStudySession(StudySession session) async {
+    try {
+      if (session.firestoreId != null) {
+        await _db.collection('study_sessions').doc(session.firestoreId).delete();
+        print("Session deleted");
+      }
+    } catch (e) {
+      print("Error deleting session: $e");
+      rethrow;
     }
   }
 
   Future<List<StudySession>> fetchHistory() async {
     try {
       QuerySnapshot snapshot = await _db.collection('study_sessions').get();
-      
+
       return snapshot.docs.map((doc) {
-        return StudySession.fromMap(doc.data() as Map<String, dynamic>);
+        return StudySession.fromMap(doc.data() as Map<String, dynamic>, doc.id);
       }).toList();
     } catch (e) {
       print("Error fetching history from Firestore : $e");
