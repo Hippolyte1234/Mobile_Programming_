@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 class NotificationService {
   static Future<void> init() async {
     await AwesomeNotifications().initialize(
-      null, // Icône par défaut (null utilise l'icône de l'app)
+      'resource://drawable/logo', // default icon
       [
         NotificationChannel(
           channelKey: 'study_flow_channel',
