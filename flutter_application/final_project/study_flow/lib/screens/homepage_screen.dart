@@ -102,7 +102,7 @@ class _HomepageScreenState extends State<HomepageScreen> {
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
           BottomNavigationBarItem(icon: Icon(Icons.history), label: 'History'),
           BottomNavigationBarItem(icon: Icon(Icons.settings), label: 'Settings'),
-          BottomNavigationBarItem(icon: Icon(Icons.storage_outlined), label: 'Firestore'),
+          BottomNavigationBarItem(icon: Icon(Icons.smart_toy_outlined), label: 'AI Plan'),
         ],
       ),
     );
