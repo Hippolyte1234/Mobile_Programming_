@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import '../models/study_session.dart';
 
 class DatabaseService {
@@ -7,7 +8,14 @@ class DatabaseService {
 
   Future<void> saveStudySession(StudySession session) async {
     try {
-      await _db.collection('study_sessions').add(session.toMap());
+      final user = FirebaseAuth.instance.currentUser;
+      if (user == null) throw Exception("No user logged in");
+
+      await _db
+          .collection('users')
+          .doc(user.uid)
+          .collection('study_sessions')
+          .add(session.toMap());
       print("Session saved");
     } catch (e) {
       print("Error to save session : $e");
@@ -18,7 +26,12 @@ class DatabaseService {
   Future<void> updateStudySession(StudySession session) async {
     try {
       if (session.firestoreId != null) {
+        final user = FirebaseAuth.instance.currentUser;
+        if (user == null) throw Exception("No user logged in");
+
         await _db
+            .collection('users')
+            .doc(user.uid)
             .collection('study_sessions')
             .doc(session.firestoreId)
             .update(session.toMap());
@@ -33,7 +46,15 @@ class DatabaseService {
   Future<void> deleteStudySession(StudySession session) async {
     try {
       if (session.firestoreId != null) {
-        await _db.collection('study_sessions').doc(session.firestoreId).delete();
+        final user = FirebaseAuth.instance.currentUser;
+        if (user == null) throw Exception("No user logged in");
+
+        await _db
+            .collection('users')
+            .doc(user.uid)
+            .collection('study_sessions')
+            .doc(session.firestoreId)
+            .delete();
         print("Session deleted");
       }
     } catch (e) {
@@ -44,7 +65,14 @@ class DatabaseService {
 
   Future<List<StudySession>> fetchHistory() async {
     try {
-      QuerySnapshot snapshot = await _db.collection('study_sessions').get();
+      final user = FirebaseAuth.instance.currentUser;
+      if (user == null) return []; // Return empty list if no user is logged in
+
+      QuerySnapshot snapshot = await _db
+          .collection('users')
+          .doc(user.uid)
+          .collection('study_sessions')
+          .get();
 
       return snapshot.docs.map((doc) {
         return StudySession.fromMap(doc.data() as Map<String, dynamic>, doc.id);

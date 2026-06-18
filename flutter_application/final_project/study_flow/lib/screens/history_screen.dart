@@ -63,14 +63,41 @@ class _HistoryScreenState extends State<HistoryScreen> {
     );
   }
 
+  final ScrollController _noteScrollController = ScrollController();
+
   Widget _buildSessionList(List<StudySession> sessions) {
     return ListView.builder(
       itemCount: sessions.length,
       itemBuilder: (context, index) {
         final session = sessions[index];
+        final localScrollController = ScrollController();
         return ListTile(
           title: Text(session.subject ?? 'Unknown Subject'),
-          subtitle: Text('${session.duration} - ${session.date}'),
+          subtitle: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('Duration: ${session.duration} - Date: ${session.date}'),
+              if (session.notes != null && session.notes!.isNotEmpty)
+                Container(
+                  constraints: const BoxConstraints(maxHeight: 100),
+                  width: double.infinity, 
+                  child: Scrollbar(
+                    controller: localScrollController, 
+                    thumbVisibility: true,             
+                    trackVisibility: false,            
+                    child: SingleChildScrollView(
+                      controller: localScrollController,
+                      child: Padding(
+                        padding: const EdgeInsets.only(right: 8.0), 
+                        child: Text(
+                          session.notes!,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+            ],
+          ),
           onTap: () {
             _showEditDialog(session);
           },
