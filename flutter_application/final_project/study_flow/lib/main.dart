@@ -1,7 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:study_flow/firebase_options.dart';
-import 'package:study_flow/screens/firestore_test_screen.dart';
+import 'package:study_flow/screens/ai_plan/ai_plan_screen.dart';
 import 'package:study_flow/screens/homepage_screen.dart';
 import 'package:study_flow/screens/history_screen.dart';
 import 'package:study_flow/screens/logger_screen.dart';
@@ -47,7 +47,7 @@ class _MainShellState extends State<MainShell> {
 
   static const _pages = [
     _HomePage(),
-    FirestoreTestScreen(),
+    AiPlanScreen(),
   ];
 
   @override
@@ -113,7 +113,7 @@ void main() async {
     routes: {
       'home': (context) => HomepageScreen(),
       'history': (context) => HistoryScreen(),
-      'firestore': (context) => FirestoreTestScreen(),
+      'firestore': (context) => AiPlanScreen(),
       'settings': (context) => SettingsScreen(),
       'logger': (context) => LoggerScreen(),
       'register': (context) => RegisterScreen(),

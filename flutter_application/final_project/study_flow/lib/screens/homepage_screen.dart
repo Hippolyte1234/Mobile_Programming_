@@ -58,7 +58,7 @@ class _HomepageScreenState extends State<HomepageScreen> {
 */
 
 import 'package:flutter/material.dart';
-import 'package:study_flow/screens/firestore_test_screen.dart';
+import 'package:study_flow/screens/ai_plan/ai_plan_screen.dart';
 import 'package:study_flow/screens/history_screen.dart';
 import 'package:study_flow/screens/real_homepage_screen.dart';
 import 'package:study_flow/screens/settings_screen.dart';
@@ -77,7 +77,7 @@ class _HomepageScreenState extends State<HomepageScreen> {
     RealHomepageScreen(),
     HistoryScreen(),
     SettingsScreen(),
-    FirestoreTestScreen(),
+    AiPlanScreen(),
   ];
 
   @override

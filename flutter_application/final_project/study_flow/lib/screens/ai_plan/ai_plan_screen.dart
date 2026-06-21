@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:study_flow/services/location_service.dart';
 import 'package:study_flow/services/notification_service.dart';
 
-class FirestoreTestScreen extends StatelessWidget {
-  const FirestoreTestScreen({super.key});
+class AiPlanScreen extends StatelessWidget {
+  const AiPlanScreen({super.key});
 
   CollectionReference<Map<String, dynamic>> get _col =>
       FirebaseFirestore.instance.collection('test_items');
