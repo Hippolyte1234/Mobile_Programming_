@@ -60,6 +60,7 @@ class _HomepageScreenState extends State<HomepageScreen> {
 import 'package:flutter/material.dart';
 import 'package:study_flow/screens/ai_plan/ai_plan_screen.dart';
 import 'package:study_flow/screens/history_screen.dart';
+import 'package:study_flow/screens/habits_screen.dart';
 import 'package:study_flow/screens/real_homepage_screen.dart';
 import 'package:study_flow/screens/settings_screen.dart';
 
@@ -75,6 +76,7 @@ class _HomepageScreenState extends State<HomepageScreen> {
 
   final List<Widget> _pages = [
     RealHomepageScreen(),
+    HabitsScreen(),
     HistoryScreen(),
     SettingsScreen(),
     AiPlanScreen(),
@@ -100,6 +102,7 @@ class _HomepageScreenState extends State<HomepageScreen> {
         },
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
+          BottomNavigationBarItem(icon: Icon(Icons.done_all), label: 'Habits'),
           BottomNavigationBarItem(icon: Icon(Icons.history), label: 'History'),
           BottomNavigationBarItem(icon: Icon(Icons.settings), label: 'Settings'),
           BottomNavigationBarItem(icon: Icon(Icons.smart_toy_outlined), label: 'AI Plan'),

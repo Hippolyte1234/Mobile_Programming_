@@ -4,6 +4,7 @@ import 'package:study_flow/firebase_options.dart';
 import 'package:study_flow/screens/ai_plan/ai_plan_screen.dart';
 import 'package:study_flow/screens/homepage_screen.dart';
 import 'package:study_flow/screens/history_screen.dart';
+import 'package:study_flow/screens/habits_screen.dart';
 import 'package:study_flow/screens/logger_screen.dart';
 import 'package:study_flow/screens/login_screen.dart';
 import 'package:study_flow/screens/logout_screen.dart';
@@ -98,14 +99,24 @@ void main() async {
   final dbService = DatabaseService(isar);*/
 
   try {
-    await Firebase.initializeApp();
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
     print("Firebase successfully connected");
   } catch (e) {
     print("Firebase initialization failed: $e");
   }
-  await awesome_notifications.NotificationService.init();
+  try {
+    await awesome_notifications.NotificationService.init();
+  } catch (e) {
+    print("Awesome Notifications initialization failed: $e");
+  }
 
-  await NotificationService.instance.init();
+  try {
+    await NotificationService.instance.init();
+  } catch (e) {
+    print("Local notification initialization failed: $e");
+  }
 
   runApp(MaterialApp(
     debugShowCheckedModeBanner: false,
@@ -113,6 +124,7 @@ void main() async {
     routes: {
       'home': (context) => HomepageScreen(),
       'history': (context) => HistoryScreen(),
+      'habits': (context) => HabitsScreen(),
       'firestore': (context) => AiPlanScreen(),
       'settings': (context) => SettingsScreen(),
       'logger': (context) => LoggerScreen(),
