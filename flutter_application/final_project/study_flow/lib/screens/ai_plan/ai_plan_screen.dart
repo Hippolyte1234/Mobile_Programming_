@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:study_flow/services/location_service.dart';
 import 'package:study_flow/services/notification_service.dart';
@@ -6,14 +7,27 @@ import 'package:study_flow/services/notification_service.dart';
 class AiPlanScreen extends StatelessWidget {
   const AiPlanScreen({super.key});
 
-  CollectionReference<Map<String, dynamic>> get _col =>
-      FirebaseFirestore.instance.collection('test_items');
+  CollectionReference<Map<String, dynamic>>? get _col {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return null;
+    return FirebaseFirestore.instance
+        .collection('users')
+        .doc(user.uid)
+        .collection('ai_plans');
+  }
 
   @override
   Widget build(BuildContext context) {
+    final col = _col;
+    if (col == null) {
+      return const Scaffold(
+        body: Center(child: Text('No user logged in.')),
+      );
+    }
+
     return Scaffold(
       body: StreamBuilder<QuerySnapshot>(
-        stream: _col.orderBy('createdAt', descending: true).snapshots(),
+        stream: col.orderBy('createdAt', descending: true).snapshots(),
         builder: (context, snapshot) {
           if (snapshot.hasError) {
             return Center(child: Text('Error: ${snapshot.error}'));
@@ -47,7 +61,12 @@ class AiPlanScreen extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(horizontal: 20),
                   child: const Icon(Icons.delete_outline, color: Colors.white),
                 ),
-                onDismissed: (_) => _col.doc(doc.id).delete(),
+                onDismissed: (_) {
+                  final col = _col;
+                  if (col != null) {
+                    col.doc(doc.id).delete();
+                  }
+                },
                 child: ListTile(
                   title: Text(title),
                   subtitle: Row(
@@ -98,7 +117,10 @@ class AiPlanScreen extends StatelessWidget {
           FilledButton(
             style: FilledButton.styleFrom(backgroundColor: Colors.red),
             onPressed: () async {
-              await _col.doc(docId).delete();
+              final col = _col;
+              if (col != null) {
+                await col.doc(docId).delete();
+              }
               if (dialogContext.mounted) Navigator.pop(dialogContext);
               await NotificationService.instance
                   .show('Item deleted', '"$title" was removed from your AI Plan.');
@@ -150,13 +172,16 @@ class AiPlanScreen extends StatelessWidget {
     final title = controller.text.trim();
     if (title.isEmpty) return;
 
+    final col = _col;
+    if (col == null) return;
+
     if (docId != null) {
-      await _col.doc(docId).update({'title': title});
+      await col.doc(docId).update({'title': title});
       await NotificationService.instance
           .show('Item updated', '"$title" was updated in your AI Plan.');
     } else {
       final location = await LocationService.instance.getCurrentLocationName();
-      await _col.add({
+      await col.add({
         'title': title,
         'location': location,
         'createdAt': FieldValue.serverTimestamp(),
@@ -168,3 +193,4 @@ class AiPlanScreen extends StatelessWidget {
     if (context.mounted) Navigator.pop(context);
   }
 }
+
