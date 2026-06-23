@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
 import 'package:study_flow/services/gemini_service.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class Message {
   final String text;
@@ -31,6 +32,13 @@ class _AiChatScreenState extends State<AiChatScreen> {
   bool _isTyping = false;
   
   ChatSession? _chatSession;
+  String? _apiKey;
+
+  /// Use Gemini 2.5 Flash Lite as the only model.
+  static const _modelCandidates = [
+    'gemini-2.5-flash-lite',
+  ];
+  int _currentModelIndex = 0;
 
   @override
   void initState() {
@@ -38,28 +46,57 @@ class _AiChatScreenState extends State<AiChatScreen> {
     _checkApiKey();
   }
 
+  List<Content> _systemHistory() => [
+    Content.text(
+      "You are a highly structured planning assistant. Whenever a user asks you to create a plan, suggest a schedule, or organize an event, you must strictly reply using the exact format and rules outlined below.\n\n"
+      "First, provide a brief explanation of the overall strategy, approach, or theme for the plans. Then, provide exactly 3 specific plans.\n\n"
+      "Strict Output Template:\n\n"
+      "[Brief explanation of the overall strategy or theme]\n\n"
+      "Date : [Insert appropriate upcoming date]\n"
+      "Time : [Insert appropriate time]\n\n"
+      "Title : [Insert subject title] (1/3)\n\n"
+      "Description : [Insert a brief description of the specific tasks or activities to do]\n\n"
+      "Date : [Insert appropriate upcoming date]\n"
+      "Time : [Insert appropriate time]\n\n"
+      "Title : [Insert the exact same subject title as above] (2/3)\n\n"
+      "Description : [Insert a brief description of different tasks or activities to do]\n\n"
+      "Date : [Insert appropriate upcoming date]\n"
+      "Time : [Insert appropriate time]\n\n"
+      "Title : [Insert the exact same subject title as above] (3/3)\n\n"
+      "Description : [Insert a brief description of different tasks or activities to do]\n\n"
+      "Rules to Follow:\n\n"
+      "Quantity: You must always generate exactly three plans.\n\n"
+      "Title: The core text of the Title must be identical across all three plans, but you must append the sequential numbering (1/3), (2/3), and (3/3) to the end of each respectively.\n\n"
+      "Description: The Description must be unique for each plan, offering different actionable steps or variations of the activity.\n\n"
+      "Formatting: Do not deviate from the bolded labels (Date :, Time :, Title :, Description :)."
+    ),
+    Content.model([
+      TextPart("Understood! I am your structured planning assistant. I will strictly follow your output template, rules, and labels for all plans, schedules, or events you ask me to organize. How can I help you plan today?"),
+    ]),
+  ];
+
+  void _initChatSession(String key, {int modelIndex = 0}) {
+    _apiKey = key;
+    _currentModelIndex = modelIndex;
+    final model = GenerativeModel(
+      model: _modelCandidates[_currentModelIndex],
+      apiKey: key,
+    );
+    _chatSession = model.startChat(history: _systemHistory());
+  }
+
   Future<void> _checkApiKey() async {
     setState(() => _isLoadingKey = true);
     final key = await GeminiService.instance.getApiKey();
     if (key != null && key.isNotEmpty) {
-      // Initialize model and chat session
-      final model = GenerativeModel(
-        model: 'gemini-1.5-flash',
-        apiKey: key,
-        systemInstruction: Content.system(
-          "You are StudyFlow Assistant, a friendly and helpful AI study planner. "
-          "Help the user organize study sessions, set priorities, and offer study tips. "
-          "Keep your replies concise (under 3-4 sentences) and highly actionable."
-        ),
-      );
-      _chatSession = model.startChat();
+      _initChatSession(key);
       
       setState(() {
         _isApiKeyConfigured = true;
         _messages.clear();
         _messages.add(
           Message(
-            text: "Hi! I am your Gemini-powered StudyFlow Assistant. Ask me to help organize your study timeline, suggest deadlines, or create generic tasks!",
+            text: "Hi! I am your structured planning assistant. Ask me to help organize your study timeline, suggest schedules, or plan events!",
             isUser: false,
             timestamp: DateTime.now(),
           ),
@@ -73,12 +110,27 @@ class _AiChatScreenState extends State<AiChatScreen> {
     setState(() => _isLoadingKey = false);
   }
 
-  Future<void> _saveKey(String key) async {
-    if (key.trim().isEmpty) return;
+  Future<bool> _saveKey(String key) async {
+    final trimmedKey = key.trim();
+    if (trimmedKey.isEmpty) return false;
+
+    if (!GeminiService.isValidApiKey(trimmedKey)) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Invalid API Key format. It should start with AIza or AQ.'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+      return false;
+    }
+
     setState(() => _isLoadingKey = true);
     try {
-      await GeminiService.instance.saveApiKey(key.trim());
+      await GeminiService.instance.saveApiKey(trimmedKey);
       await _checkApiKey();
+      return true;
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -86,6 +138,7 @@ class _AiChatScreenState extends State<AiChatScreen> {
         );
       }
       setState(() => _isLoadingKey = false);
+      return false;
     }
   }
 
@@ -94,6 +147,7 @@ class _AiChatScreenState extends State<AiChatScreen> {
     try {
       await GeminiService.instance.clearApiKey();
       _chatSession = null;
+      _apiKey = null;
       setState(() {
         _isApiKeyConfigured = false;
         _messages.clear();
@@ -128,6 +182,27 @@ class _AiChatScreenState extends State<AiChatScreen> {
         _messages.add(Message(text: replyText, isUser: false, timestamp: DateTime.now()));
       });
     } catch (e) {
+      final errorStr = e.toString().toLowerCase();
+
+      // On quota/model errors, automatically try the next model candidate.
+      if (_apiKey != null &&
+          (errorStr.contains('quota') || errorStr.contains('not found') || errorStr.contains('not supported')) &&
+          _currentModelIndex + 1 < _modelCandidates.length) {
+        final nextIndex = _currentModelIndex + 1;
+        _initChatSession(_apiKey!, modelIndex: nextIndex);
+
+        try {
+          final retryResponse = await _chatSession!.sendMessage(Content.text(text));
+          final replyText = retryResponse.text ?? "Sorry, I couldn't generate a reply.";
+          setState(() {
+            _messages.add(Message(text: replyText, isUser: false, timestamp: DateTime.now()));
+          });
+          return; // success on fallback
+        } catch (_) {
+          // Fall through to show original error
+        }
+      }
+
       setState(() {
         _messages.add(
           Message(
@@ -171,13 +246,31 @@ class _AiChatScreenState extends State<AiChatScreen> {
               'Input your Gemini API key from Google AI Studio. Your key will be securely saved to your private user profile.',
               style: TextStyle(fontSize: 13, height: 1.4),
             ),
+            const SizedBox(height: 8),
+            InkWell(
+              onTap: () async {
+                final url = Uri.parse('https://aistudio.google.com/app/apikey');
+                try {
+                  await launchUrl(url, mode: LaunchMode.externalApplication);
+                } catch (_) {}
+              },
+              child: Text(
+                'Get key from Google AI Studio',
+                style: TextStyle(
+                  color: Colors.blue.shade700,
+                  fontWeight: FontWeight.bold,
+                  decoration: TextDecoration.underline,
+                  fontSize: 13,
+                ),
+              ),
+            ),
             const SizedBox(height: 16),
             TextField(
               controller: keyController,
               decoration: const InputDecoration(
                 labelText: 'API Key',
                 border: OutlineInputBorder(),
-                hintText: 'AIzaSy...',
+                hintText: 'AIzaSy... or AQ....',
               ),
               obscureText: true,
             ),
@@ -200,9 +293,13 @@ class _AiChatScreenState extends State<AiChatScreen> {
           FilledButton(
             onPressed: () async {
               final newKey = keyController.text.trim();
-              Navigator.pop(dialogCtx);
               if (newKey.isNotEmpty) {
-                await _saveKey(newKey);
+                final success = await _saveKey(newKey);
+                if (success && dialogCtx.mounted) {
+                  Navigator.pop(dialogCtx);
+                }
+              } else {
+                Navigator.pop(dialogCtx);
               }
             },
             child: const Text('Connect'),
@@ -358,13 +455,31 @@ class _AiChatScreenState extends State<AiChatScreen> {
                 color: Colors.grey.shade600,
               ),
             ),
-            const SizedBox(height: 32),
+            const SizedBox(height: 8),
+            InkWell(
+              onTap: () async {
+                final url = Uri.parse('https://aistudio.google.com/app/apikey');
+                try {
+                  await launchUrl(url, mode: LaunchMode.externalApplication);
+                } catch (_) {}
+              },
+              child: Text(
+                'Get key from Google AI Studio',
+                style: TextStyle(
+                  color: Colors.blue.shade700,
+                  fontWeight: FontWeight.bold,
+                  decoration: TextDecoration.underline,
+                  fontSize: 14,
+                ),
+              ),
+            ),
+            const SizedBox(height: 24),
             TextField(
               controller: setupController,
               obscureText: true,
               decoration: InputDecoration(
                 labelText: 'Paste Gemini API Key',
-                hintText: 'AIzaSy...',
+                hintText: 'AIzaSy... or AQ....',
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),

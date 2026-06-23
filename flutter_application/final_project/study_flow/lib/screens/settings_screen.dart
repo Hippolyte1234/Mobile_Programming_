@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:study_flow/services/gemini_service.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -44,13 +45,31 @@ class _SettingsScreenState extends State<SettingsScreen> {
               'Add your Gemini API Key to enable the AI Chat Bot. You can generate a free key in Google AI Studio.',
               style: TextStyle(fontSize: 13, height: 1.4),
             ),
+            const SizedBox(height: 8),
+            InkWell(
+              onTap: () async {
+                final url = Uri.parse('https://aistudio.google.com/app/apikey');
+                try {
+                  await launchUrl(url, mode: LaunchMode.externalApplication);
+                } catch (_) {}
+              },
+              child: Text(
+                'Get key from Google AI Studio',
+                style: TextStyle(
+                  color: Colors.blue.shade700,
+                  fontWeight: FontWeight.bold,
+                  decoration: TextDecoration.underline,
+                  fontSize: 13,
+                ),
+              ),
+            ),
             const SizedBox(height: 16),
             TextField(
               controller: controller,
               decoration: const InputDecoration(
                 labelText: 'API Key',
                 border: OutlineInputBorder(),
-                hintText: 'AIzaSy...',
+                hintText: 'AIzaSy... or AQ....',
               ),
               obscureText: true,
             ),
@@ -80,6 +99,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
             onPressed: () async {
               final newKey = controller.text.trim();
               if (newKey.isNotEmpty) {
+                if (!GeminiService.isValidApiKey(newKey)) {
+                  if (mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Invalid API Key format. It should start with AIza or AQ.'),
+                        backgroundColor: Colors.red,
+                      ),
+                    );
+                  }
+                  return;
+                }
                 await GeminiService.instance.saveApiKey(newKey);
                 await _loadSettings();
               }
