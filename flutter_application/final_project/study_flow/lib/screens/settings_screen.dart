@@ -204,8 +204,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       Divider(height: 1),
                       ListTile(
                         leading: Icon(Icons.smart_toy_outlined),
-                        title: Text('AI Capabilities'),
-                        trailing: Text('Gemini 1.5 Flash', style: TextStyle(color: Colors.grey)),
+                        title: Text('AI Model'),
+                        trailing: Text('gemini-2-flash-lite', style: TextStyle(color: Colors.grey)),
                       ),
                     ],
                   ),
