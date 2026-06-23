@@ -46,6 +46,13 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       initialRoute: 'login',
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: Colors.blue,
+          primary: Colors.blue,
+        ),
+        useMaterial3: true,
+      ),
       routes: {
         'home': (context) => const HomepageScreen(),
         'history': (context) => const HistoryScreen(),

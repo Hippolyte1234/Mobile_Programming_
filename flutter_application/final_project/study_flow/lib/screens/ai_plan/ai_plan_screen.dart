@@ -40,15 +40,15 @@ class AiPlanScreen extends StatelessWidget {
                 // Completed list button
                 ElevatedButton.icon(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.grey.shade100,
-                    foregroundColor: Colors.black87,
+                    backgroundColor: Colors.green.shade50,
+                    foregroundColor: Colors.green.shade800,
                     elevation: 0,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(20),
                     ),
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                   ),
-                  icon: const Icon(Icons.assignment_turned_in_outlined, size: 18),
+                  icon: const Icon(Icons.assignment_turned_in_outlined, size: 18, color: Colors.green),
                   label: const Text('Marked as Done'),
                   onPressed: () {
                     Navigator.push(

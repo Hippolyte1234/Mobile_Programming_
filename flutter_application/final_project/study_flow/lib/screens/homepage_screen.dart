@@ -88,6 +88,7 @@ class _HomepageScreenState extends State<HomepageScreen> {
       appBar: AppBar(
         title: const Text('Study Flow'),
         centerTitle: true,
+        backgroundColor: Colors.blue.shade100,
       ),
       body: _pages[_currentIndex], 
       

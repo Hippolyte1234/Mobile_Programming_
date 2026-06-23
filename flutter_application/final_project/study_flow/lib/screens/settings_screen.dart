@@ -147,10 +147,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
                 Card(
                   elevation: 0,
-                  color: Colors.grey.shade50,
+                  color: Colors.white,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16),
-                    side: BorderSide(color: Colors.grey.shade200),
+                    side: BorderSide(color: Colors.blue.shade100),
                   ),
                   child: ListTile(
                     contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -189,10 +189,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
                 Card(
                   elevation: 0,
-                  color: Colors.grey.shade50,
+                  color: Colors.white,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16),
-                    side: BorderSide(color: Colors.grey.shade200),
+                    side: BorderSide(color: Colors.blue.shade100),
                   ),
                   child: const Column(
                     children: [
