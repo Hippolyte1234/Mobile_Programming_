@@ -74,12 +74,12 @@ class HomepageScreen extends StatefulWidget {
 class _HomepageScreenState extends State<HomepageScreen> {
   int _currentIndex = 0;
 
-  final List<Widget> _pages = [
+  List<Widget> get _pages => const [
     RealHomepageScreen(),
     HabitsScreen(),
     HistoryScreen(),
-    SettingsScreen(),
     AiPlanScreen(),
+    SettingsScreen(),
   ];
 
   @override
@@ -104,8 +104,8 @@ class _HomepageScreenState extends State<HomepageScreen> {
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
           BottomNavigationBarItem(icon: Icon(Icons.done_all), label: 'Habits'),
           BottomNavigationBarItem(icon: Icon(Icons.history), label: 'History'),
-          BottomNavigationBarItem(icon: Icon(Icons.settings), label: 'Settings'),
           BottomNavigationBarItem(icon: Icon(Icons.smart_toy_outlined), label: 'AI Plan'),
+          BottomNavigationBarItem(icon: Icon(Icons.settings), label: 'Settings'),
         ],
       ),
     );
