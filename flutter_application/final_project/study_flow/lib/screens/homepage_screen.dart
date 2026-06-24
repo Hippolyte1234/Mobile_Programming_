@@ -58,8 +58,9 @@ class _HomepageScreenState extends State<HomepageScreen> {
 */
 
 import 'package:flutter/material.dart';
-import 'package:study_flow/screens/firestore_test_screen.dart';
+import 'package:study_flow/screens/ai_plan/ai_plan_screen.dart';
 import 'package:study_flow/screens/history_screen.dart';
+import 'package:study_flow/screens/habits_screen.dart';
 import 'package:study_flow/screens/real_homepage_screen.dart';
 import 'package:study_flow/screens/settings_screen.dart';
 
@@ -73,11 +74,12 @@ class HomepageScreen extends StatefulWidget {
 class _HomepageScreenState extends State<HomepageScreen> {
   int _currentIndex = 0;
 
-  final List<Widget> _pages = [
+  List<Widget> get _pages => const [
     RealHomepageScreen(),
+    HabitsScreen(),
     HistoryScreen(),
+    AiPlanScreen(),
     SettingsScreen(),
-    FirestoreTestScreen(),
   ];
 
   @override
@@ -86,6 +88,7 @@ class _HomepageScreenState extends State<HomepageScreen> {
       appBar: AppBar(
         title: const Text('Study Flow'),
         centerTitle: true,
+        backgroundColor: Colors.blue.shade100,
       ),
       body: _pages[_currentIndex], 
       
@@ -100,9 +103,10 @@ class _HomepageScreenState extends State<HomepageScreen> {
         },
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
+          BottomNavigationBarItem(icon: Icon(Icons.done_all), label: 'Habits'),
           BottomNavigationBarItem(icon: Icon(Icons.history), label: 'History'),
-          BottomNavigationBarItem(icon: Icon(Icons.settings), label: 'Settings'),
           BottomNavigationBarItem(icon: Icon(Icons.smart_toy_outlined), label: 'AI Plan'),
+          BottomNavigationBarItem(icon: Icon(Icons.settings), label: 'Settings'),
         ],
       ),
     );

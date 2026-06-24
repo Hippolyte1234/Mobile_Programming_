@@ -10,7 +10,7 @@ class NotificationService {
           channelKey: 'study_flow_channel',
           channelName: 'Study Flow Notifications',
           channelDescription: 'Notifications for study session updates',
-          defaultColor: const Color(0xFF9D50BB),
+          defaultColor: const Color(0xFF2196F3),
           ledColor: Colors.white,
           importance: NotificationImportance.High,
         )
