@@ -14,39 +14,76 @@ class HistoryScreen extends StatefulWidget {
 class _HistoryScreenState extends State<HistoryScreen> {
   final StudySessionService _studySessionService = StudySessionService();
   final DatabaseService _databaseService = DatabaseService();
+  final TextEditingController _searchController = TextEditingController();
+
+  List<StudySession> _allSessions = [];
+  List<StudySession> _filteredSessions = [];
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchAllSessions();
+    _searchController.addListener(_filterSessions);
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _fetchAllSessions() async {
+    setState(() => _isLoading = true);
+
+    // Fetch from both local and remote sources
+    final remoteSessions = await _databaseService.fetchHistory();
+
+    // Simple de-duplication based on firestoreId
+    final uniqueSessions = <String, StudySession>{};
+    for (var session in remoteSessions) {
+      if (session.firestoreId != null) {
+        uniqueSessions[session.firestoreId!] = session;
+      }
+    }
+
+    if (mounted) {
+      setState(() {
+        _allSessions = uniqueSessions.values.toList();
+        // Sort by start time, newest first
+        _allSessions.sort((a, b) => (b.startTime ?? DateTime(0)).compareTo(a.startTime ?? DateTime(0)));
+        _filteredSessions = _allSessions;
+        _isLoading = false;
+      });
+    }
+  }
+
+  void _filterSessions() {
+    final query = _searchController.text.toLowerCase();
+    setState(() {
+      _filteredSessions = _allSessions.where((session) {
+        final subjectMatch = session.subject?.toLowerCase().contains(query) ?? false;
+        final notesMatch = session.notes?.toLowerCase().contains(query) ?? false;
+        return subjectMatch || notesMatch;
+      }).toList();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('History')),
-      body: Center(
-        child: FutureBuilder<List<StudySession>>(
-          future: _fetchAllSessions(),
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(child: CircularProgressIndicator());
-            }
-            if (snapshot.hasError) {
-              return Center(child: Text('Error : ${snapshot.error}'));
-            }
-
-            final sessions = snapshot.data ?? [];
-            if (sessions.isEmpty) {
-              return _buildEmptyState();
-            }
-            return _buildSessionList(sessions);
-          },
-        ),
-      ),
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : Column(
+              children: [
+                _buildSearchBar(),
+                Expanded(
+                  child: _filteredSessions.isEmpty ? _buildEmptyState() : _buildSessionList(_filteredSessions),
+                ),
+              ],
+            ),
     );
-  }
-
-  Future<List<StudySession>> _fetchAllSessions() async {
-    final localSessions = await _studySessionService.fetchHistory();
-    final remoteSessions = await _databaseService.fetchHistory();
-
-    // On combine les deux listes dans une seule
-    return [...localSessions, ...remoteSessions];
   }
 
   Widget _buildEmptyState() {
@@ -56,14 +93,28 @@ class _HistoryScreenState extends State<HistoryScreen> {
         Icon(Icons.history, size: 80, color: Colors.grey),
         SizedBox(height: 16),
         Text(
-          'No study sessions logged yet',
-          style: TextStyle(fontSize: 18, color: Colors.grey),
+          _searchController.text.isEmpty
+              ? 'No study sessions logged yet'
+              : 'No sessions found',
+          style: const TextStyle(fontSize: 18, color: Colors.grey),
         ),
       ],
     );
   }
 
-  final ScrollController _noteScrollController = ScrollController();
+  Widget _buildSearchBar() {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: TextField(
+        controller: _searchController,
+        decoration: InputDecoration(
+          labelText: 'Search by subject or notes',
+          prefixIcon: const Icon(Icons.search),
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(8.0)),
+        ),
+      ),
+    );
+  }
 
   Widget _buildSessionList(List<StudySession> sessions) {
     return ListView.builder(
@@ -72,7 +123,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
         final session = sessions[index];
         final localScrollController = ScrollController();
         return ListTile(
-          title: Text(session.subject ?? 'Unknown Subject'),
+          title: Text(session.subject ?? 'Unknown Subject', style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.blue)),
           subtitle: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -155,7 +206,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
 
                 if (!context.mounted) return;
                 Navigator.pop(context);
-                setState(() {}); // Refresh the list
+                _fetchAllSessions(); // Refresh the list
               },
               child: const Text('Delete'),
             ),
@@ -179,7 +230,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
 
                 if (!context.mounted) return;
                 Navigator.pop(context);
-                setState(() {}); // Refresh the list
+                _fetchAllSessions(); // Refresh the list
               },
               child: const Text('Save'),
             ),
