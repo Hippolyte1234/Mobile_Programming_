@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:study_flow/services/gemini_service.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -127,6 +128,32 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
+  void _showTestCrashDialog() {
+    showDialog<void>(
+      context: context,
+      builder: (dialogCtx) => AlertDialog(
+        title: const Text('Test Crashlytics'),
+        content: const Text(
+          'Are you sure you want to test crash the app? This will force the app to close immediately and report the crash to Firebase Console.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogCtx),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            style: FilledButton.styleFrom(backgroundColor: Colors.red),
+            onPressed: () {
+              Navigator.pop(dialogCtx);
+              FirebaseCrashlytics.instance.crash();
+            },
+            child: const Text('Crash App'),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final hasKey = _apiKey != null && _apiKey!.isNotEmpty;
@@ -194,18 +221,25 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     borderRadius: BorderRadius.circular(16),
                     side: BorderSide(color: Colors.blue.shade100),
                   ),
-                  child: const Column(
+                  child: Column(
                     children: [
-                      ListTile(
+                      const ListTile(
                         leading: Icon(Icons.info_outline),
                         title: Text('App Version'),
                         trailing: Text('1.0.0', style: TextStyle(color: Colors.grey)),
                       ),
-                      Divider(height: 1),
-                      ListTile(
+                      const Divider(height: 1),
+                      const ListTile(
                         leading: Icon(Icons.smart_toy_outlined),
                         title: Text('AI Model'),
                         trailing: Text('gemini-2.5-flash-lite', style: TextStyle(color: Colors.grey)),
+                      ),
+                      const Divider(height: 1),
+                      ListTile(
+                        leading: const Icon(Icons.bug_report_outlined, color: Colors.red),
+                        title: const Text('Test Crash', style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
+                        trailing: const Icon(Icons.chevron_right, color: Colors.red),
+                        onTap: _showTestCrashDialog,
                       ),
                     ],
                   ),

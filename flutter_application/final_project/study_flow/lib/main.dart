@@ -1,4 +1,6 @@
+import 'dart:ui';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart';
 import 'package:study_flow/firebase_options.dart';
 import 'package:study_flow/screens/ai_plan/ai_plan_screen.dart';
@@ -20,6 +22,15 @@ void main() async {
       options: DefaultFirebaseOptions.currentPlatform,
     );
     print("Firebase successfully connected");
+
+    FlutterError.onError = (flutterErrorDetails) {
+      FirebaseCrashlytics.instance.recordFlutterFatalError(flutterErrorDetails);
+    };
+
+    PlatformDispatcher.instance.onError = (error, stack) {
+      FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
+      return true;
+    };
   } catch (e) {
     print("Firebase initialization failed: $e");
   }
